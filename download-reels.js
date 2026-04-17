@@ -8,7 +8,7 @@ const DOWNLOAD_DIR = process.env.DOWNLOAD_DIR || './downloads';
 const MAX_DOWNLOADS = parseInt(process.env.MAX_DOWNLOADS_PER_RUN) || 3;
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: './credentials.json',
+  keyFile: "./credentials.json",
   scopes: ['https://www.googleapis.com/auth/drive.readonly'],
 });
 
