@@ -31,10 +31,12 @@ function addLogo(inputPath, outputPath) {
     ffmpeg(inputPath)
       .input(LOGO_PATH)
       .complexFilter([
+        // Scale video to 1080x1920 (Instagram Reels recommended), pad if needed
+        `[0:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2[scaled]`,
         `[1:v]scale=${LOGO_SCALE}:-1[logo]`,
-        `[0:v][logo]overlay=${pos}[out]`
+        `[scaled][logo]overlay=${pos}[out]`
       ])
-      .outputOptions(['-map [out]', '-map 0:a?', '-c:v libx264', '-c:a copy', '-preset fast', '-crf 23'])
+      .outputOptions(['-map [out]', '-map 0:a?', '-c:v libx264', '-c:a aac', '-b:v 3500k', '-b:a 128k', '-preset fast', '-crf 23'])
       .output(outputPath)
       .on('end', () => {
         console.log(`✅ Logo added: ${path.basename(outputPath)}`);
