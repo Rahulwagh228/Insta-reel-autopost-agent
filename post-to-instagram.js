@@ -9,14 +9,14 @@ const IG_USER_ID     = process.env.IG_USER_ID;
 const ACCESS_TOKEN   = process.env.IG_ACCESS_TOKEN;
 const NGROK_TOKEN    = process.env.NGROK_AUTHTOKEN;
 const PORT           = process.env.PORT || 3000;
-const BRANDED_DIR    = process.env.OUTPUT_DIR || './downloads';
+const BRANDED_DIR    = process.env.OUTPUT_DIR || './branded';
 const CAPTION        = process.env.IG_CAPTION || process.env.DEFAULT_CAPTION || '';
 const TRACKER_FILE   = path.join(__dirname, 'posted.json');
 const GRAPH          = 'https://graph.facebook.com/v21.0';
 
 let posted = {};
 if (fs.existsSync(TRACKER_FILE)) {
-  posted = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8'));
+  try { posted = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8')); } catch { posted = {}; }
 }
 
 // ── File server ──────────────────────────────────────────────────────────────
