@@ -9,7 +9,7 @@ const fs = require('fs');
 
 const DOWNLOAD_DIR = process.env.DOWNLOAD_DIR || './downloads';
 const OUTPUT_DIR = process.env.OUTPUT_DIR || './branded';
-const LOGO_PATH = process.env.LOGO_PATH || './logo.jpeg';
+const LOGO_PATH = process.env.LOGO_PATH || './logo.png';
 
 const LOGO_POSITION = process.env.LOGO_POSITION || 'bottomright';
 const LOGO_SCALE = process.env.LOGO_SCALE || '120';
