@@ -18,7 +18,7 @@ const drive = google.drive({ version: 'v3', auth });
 const TRACKER_FILE = path.join(__dirname, 'processed.json');
 let processed = {};
 if (fs.existsSync(TRACKER_FILE)) {
-  processed = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8'));
+  try { processed = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8')); } catch { processed = {}; }
 }
 
 async function listUnprocessedFiles() {
@@ -77,4 +77,6 @@ async function main() {
   console.log('✅ Done for today!');
 }
 
-main();
+module.exports = { downloadReels: main };
+
+if (require.main === module) main();

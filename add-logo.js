@@ -128,4 +128,6 @@ async function processBrandedReels() {
   console.log('✅ Branding complete!');
 }
 
-processBrandedReels();
+module.exports = { processBrandedReels };
+
+if (require.main === module) processBrandedReels();

@@ -111,23 +111,22 @@ async function publishContainer(containerId) {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-async function main() {
-  if (!IG_USER_ID || !ACCESS_TOKEN) {
-    console.error('❌ Missing env vars: IG_USER_ID, IG_ACCESS_TOKEN');
-    process.exit(1);
-  }
-  if (!NGROK_TOKEN) {
-    console.error('❌ Missing NGROK_AUTHTOKEN in .env');
-    console.error('   Get a free token at: https://dashboard.ngrok.com/get-started/your-authtoken');
-    process.exit(1);
+async function postOneReel() {
+  if (!IG_USER_ID || !ACCESS_TOKEN) throw new Error('Missing env vars: IG_USER_ID, IG_ACCESS_TOKEN');
+  if (!NGROK_TOKEN) throw new Error('Missing NGROK_AUTHTOKEN in .env');
+
+  // Reload tracker each call so scheduler picks up changes between runs
+  let current = {};
+  if (fs.existsSync(TRACKER_FILE)) {
+    try { current = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8')); } catch { current = {}; }
   }
 
-  const files = fs.readdirSync(BRANDED_DIR)
-    .filter(f => f.endsWith('.mp4') && !posted[f]);
+  const file = fs.readdirSync(BRANDED_DIR)
+    .filter(f => f.endsWith('.mp4') && !current[f])[0];
 
-  if (files.length === 0) {
+  if (!file) {
     console.log('🎉 No new branded reels to post.');
-    return;
+    return null;
   }
 
   console.log(`📡 Starting file server on port ${PORT}...`);
@@ -138,31 +137,33 @@ async function main() {
   console.log(`   Public URL: ${publicUrl}`);
 
   try {
-    for (const file of files) {
-      const videoUrl = `${publicUrl}/${encodeURIComponent(file)}`;
-      console.log(`\n📤 Posting: ${file}`);
-      console.log(`   URL: ${videoUrl}`);
+    const videoUrl = `${publicUrl}/${encodeURIComponent(file)}`;
+    console.log(`\n📤 Posting: ${file}`);
+    console.log(`   URL: ${videoUrl}`);
 
-      const containerId = await createMediaContainer(videoUrl, CAPTION);
-      console.log(`   🗂  Container created: ${containerId}`);
+    const containerId = await createMediaContainer(videoUrl, CAPTION);
+    console.log(`   🗂  Container created: ${containerId}`);
 
-      await waitUntilReady(containerId);
+    await waitUntilReady(containerId);
 
-      const mediaId = await publishContainer(containerId);
-      console.log(`   ✅ Published! Media ID: ${mediaId}`);
+    const mediaId = await publishContainer(containerId);
+    console.log(`   ✅ Published! Media ID: ${mediaId}`);
 
-      posted[file] = { mediaId, postedAt: new Date().toISOString() };
-      fs.writeFileSync(TRACKER_FILE, JSON.stringify(posted, null, 2));
-    }
+    current[file] = { mediaId, postedAt: new Date().toISOString() };
+    fs.writeFileSync(TRACKER_FILE, JSON.stringify(current, null, 2));
+
+    return mediaId;
   } finally {
     await listener.close();
     server.close(() => console.log('\n🔌 Server & tunnel stopped.'));
   }
-
-  console.log('\n✅ All done!');
 }
 
-main().catch(err => {
-  console.error('❌ Error:', err.response?.data || err.message);
-  process.exit(1);
-});
+module.exports = { postOneReel };
+
+if (require.main === module) {
+  postOneReel().catch(err => {
+    console.error('❌ Error:', err.response?.data || err.message);
+    process.exit(1);
+  });
+}
