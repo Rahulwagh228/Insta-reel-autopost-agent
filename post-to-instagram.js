@@ -3,6 +3,7 @@ const axios  = require('axios');
 const fs     = require('fs');
 const path   = require('path');
 const http   = require('http');
+const log    = require('./logger');
 
 const IG_USER_ID     = process.env.IG_USER_ID;
 const ACCESS_TOKEN   = process.env.IG_ACCESS_TOKEN;
@@ -80,7 +81,7 @@ async function waitUntilReady(containerId, maxWaitMs = 5 * 60 * 1000) {
       params: { fields: 'status_code,status', access_token: ACCESS_TOKEN },
     });
     const { status_code, status } = res.data;
-    console.log(`   ⏳ Status: ${status_code} — ${status}`);
+    log.info(`Status: ${status_code} — ${status}`);
     if (status_code === 'FINISHED') return true;
     if (status_code === 'ERROR') throw new Error(`Container error: ${status}`);
     await new Promise(r => setTimeout(r, 10000));
@@ -110,11 +111,11 @@ async function postOneReel() {
     .filter(f => f.endsWith('.mp4') && !current[f]?.mediaId)[0];
 
   if (!file) {
-    console.log('🎉 No new branded reels to post to Instagram.');
+    log.info('No new branded reels to post to Instagram.');
     return null;
   }
 
-  console.log(`📡 Starting file server on port ${PORT}...`);
+  log.info(`Starting file server on port ${PORT}...`);;
   const server = await startFileServer();
 
   let publicUrl;
@@ -123,28 +124,27 @@ async function postOneReel() {
   if (PUBLIC_SERVER_URL) {
     // On a real server — use public IP directly, no ngrok needed
     publicUrl = PUBLIC_SERVER_URL;
-    console.log(`🌐 Using server URL: ${publicUrl}`);
+    log.info(`Using server URL: ${publicUrl}`);
   } else {
-    // Local machine — start ngrok tunnel
-    console.log('🌐 Starting ngrok tunnel...');
+    log.info('Starting ngrok tunnel...');
     const tunnel = await startTunnel();
     publicUrl = tunnel.url;
     listener  = tunnel.listener;
-    console.log(`   Public URL: ${publicUrl}`);
+    log.info(`Public URL: ${publicUrl}`);
   }
 
   try {
     const videoUrl    = `${publicUrl}/${encodeURIComponent(file)}`;
-    console.log(`\n📤 Posting: ${file}`);
-    console.log(`   URL: ${videoUrl}`);
+    log.info(`Posting to Instagram: ${file}`);
+    log.info(`Video URL: ${videoUrl}`);
 
     const containerId = await createMediaContainer(videoUrl, CAPTION);
-    console.log(`   🗂  Container created: ${containerId}`);
+    log.info(`Container created: ${containerId}`);
 
     await waitUntilReady(containerId);
 
     const mediaId = await publishContainer(containerId);
-    console.log(`   ✅ Published! Media ID: ${mediaId}`);
+    log.success(`Instagram published! Media ID: ${mediaId}`);
 
     current[file] = { ...current[file], mediaId, postedAt: new Date().toISOString() };
     fs.writeFileSync(TRACKER_FILE, JSON.stringify(current, null, 2));
@@ -152,7 +152,7 @@ async function postOneReel() {
     return mediaId;
   } finally {
     if (listener) await listener.close();
-    server.close(() => console.log('\n🔌 File server stopped.'));
+    server.close(() => log.info('File server stopped.'));
   }
 }
 

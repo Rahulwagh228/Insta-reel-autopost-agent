@@ -2,6 +2,7 @@ require('dotenv').config();
 const { google } = require('googleapis');
 const fs         = require('fs');
 const path       = require('path');
+const log        = require('./logger');
 
 const TOKENS_FILE  = path.join(__dirname, 'youtube-tokens.json');
 const TRACKER_FILE = path.join(__dirname, 'posted.json');
@@ -75,16 +76,15 @@ async function postOneToYouTube() {
     .filter(f => f.endsWith('.mp4') && !posted[f]?.youtubeId)[0];
 
   if (!file) {
-    console.log('🎉 No new reels to post to YouTube.');
+    log.info('No new reels to post to YouTube.');
     return null;
   }
 
   const filePath = path.join(BRANDED_DIR, file);
-  console.log(`\n📤 Uploading to YouTube Shorts: ${file}`);
+  log.info(`Uploading to YouTube Shorts: ${file}`);
 
   const videoId = await uploadToYouTube(filePath, YT_TITLE, YT_DESC);
-  console.log(`✅ YouTube upload successful!`);
-  console.log(`   URL: https://youtube.com/shorts/${videoId}`);
+  log.success(`YouTube uploaded! https://youtube.com/shorts/${videoId}`);
 
   posted[file] = {
     ...posted[file],

@@ -3,5 +3,9 @@
 
 /downloads
 /branded
+/logs
 
 /credentials.json
+/youtube-tokens.json
+posted.json
+processed.json
