@@ -1,11 +1,4 @@
+/insta-agent-493218-a17f6a8eacfe.json
 /node_modules
-.env
-
-/downloads
-/branded
-/logs
-
-/credentials.json
-/youtube-tokens.json
-posted.json
-processed.json
+/.env
+/.env
