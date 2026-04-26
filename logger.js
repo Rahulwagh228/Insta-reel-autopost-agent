@@ -5,7 +5,7 @@ const LOG_DIR = path.join(__dirname, 'logs');
 if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR);
 
 function getLogFile() {
-  const date = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }); // YYYY-MM-DD
+  const date = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
   return path.join(LOG_DIR, `${date}.log`);
 }
 
@@ -20,8 +20,8 @@ function write(level, msg) {
 }
 
 module.exports = {
-  info:  (msg) => write('INFO ', msg),
-  warn:  (msg) => write('WARN ', msg),
-  error: (msg) => write('ERROR', msg),
+  info:    (msg) => write('INFO ', msg),
+  warn:    (msg) => write('WARN ', msg),
+  error:   (msg) => write('ERROR', msg),
   success: (msg) => write('OK   ', msg),
 };

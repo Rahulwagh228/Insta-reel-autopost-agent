@@ -1,20 +1,20 @@
 require('dotenv').config();
 const { google } = require('googleapis');
-const readline  = require('readline');
-const fs        = require('fs');
-const path      = require('path');
+const readline   = require('readline');
+const fs         = require('fs');
+const path       = require('path');
 
 const TOKENS_FILE = path.join(__dirname, 'youtube-tokens.json');
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.YOUTUBE_CLIENT_ID,
   process.env.YOUTUBE_CLIENT_SECRET,
-  'urn:ietf:wg:oauth:2.0:oob'   // desktop / OOB flow — paste code manually
+  'urn:ietf:wg:oauth:2.0:oob'
 );
 
 const authUrl = oauth2Client.generateAuthUrl({
   access_type: 'offline',
-  prompt:      'consent',       // force refresh_token every time
+  prompt:      'consent',
   scope:       ['https://www.googleapis.com/auth/youtube.upload'],
 });
 

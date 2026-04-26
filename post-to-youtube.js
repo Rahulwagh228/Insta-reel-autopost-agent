@@ -10,7 +10,7 @@ const BRANDED_DIR  = process.env.OUTPUT_DIR || './branded';
 const YT_TITLE     = process.env.YT_TITLE       || 'Motivational Reel';
 const YT_DESC      = process.env.YT_DESCRIPTION || process.env.DEFAULT_CAPTION || '';
 
-// ── OAuth client ─────────────────────────────────────────────────────────────
+// ── OAuth client ──────────────────────────────────────────────────────────────
 
 function getOAuthClient() {
   if (!fs.existsSync(TOKENS_FILE)) {
@@ -25,7 +25,6 @@ function getOAuthClient() {
   );
   oauth2Client.setCredentials(tokens);
 
-  // Persist refreshed tokens automatically
   oauth2Client.on('tokens', (fresh) => {
     const updated = { ...tokens, ...fresh };
     fs.writeFileSync(TOKENS_FILE, JSON.stringify(updated, null, 2));
@@ -47,11 +46,11 @@ async function uploadToYouTube(filePath, title, description) {
         title:       `${title} #Shorts`,
         description: `${description}\n\n#Shorts`,
         tags:        ['Shorts', 'motivation', 'reels'],
-        categoryId:  '22',   // People & Blogs
+        categoryId:  '22',
       },
       status: {
-        privacyStatus:             'public',
-        selfDeclaredMadeForKids:   false,
+        privacyStatus:           'public',
+        selfDeclaredMadeForKids: false,
       },
     },
     media: {
@@ -71,7 +70,6 @@ async function postOneToYouTube() {
     try { posted = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8')); } catch { posted = {}; }
   }
 
-  // Pick first branded file not yet uploaded to YouTube
   const file = fs.readdirSync(BRANDED_DIR)
     .filter(f => f.endsWith('.mp4') && !posted[f]?.youtubeId)[0];
 
@@ -86,11 +84,7 @@ async function postOneToYouTube() {
   const videoId = await uploadToYouTube(filePath, YT_TITLE, YT_DESC);
   log.success(`YouTube uploaded! https://youtube.com/shorts/${videoId}`);
 
-  posted[file] = {
-    ...posted[file],
-    youtubeId:       videoId,
-    youtubePostedAt: new Date().toISOString(),
-  };
+  posted[file] = { ...posted[file], youtubeId: videoId, youtubePostedAt: new Date().toISOString() };
   fs.writeFileSync(TRACKER_FILE, JSON.stringify(posted, null, 2));
 
   return videoId;
@@ -100,7 +94,7 @@ module.exports = { postOneToYouTube };
 
 if (require.main === module) {
   postOneToYouTube().catch(err => {
-    console.error('❌ YouTube Error:', err.response?.data?.error?.message || err.message);
+    log.error(err.response?.data?.error?.message || err.message);
     process.exit(1);
   });
 }

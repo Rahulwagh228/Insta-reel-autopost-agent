@@ -5,23 +5,23 @@ const path   = require('path');
 const http   = require('http');
 const log    = require('./logger');
 
-const IG_USER_ID     = process.env.IG_USER_ID;
-const ACCESS_TOKEN   = process.env.IG_ACCESS_TOKEN;
-const NGROK_TOKEN    = process.env.NGROK_AUTHTOKEN;
-const PORT           = process.env.PORT || 3000;
-const BRANDED_DIR    = process.env.OUTPUT_DIR || './branded';
-const CAPTION        = process.env.IG_CAPTION || process.env.DEFAULT_CAPTION || '';
-const TRACKER_FILE   = path.join(__dirname, 'posted.json');
-const GRAPH          = 'https://graph.facebook.com/v21.0';
+const IG_USER_ID   = process.env.IG_USER_ID;
+const ACCESS_TOKEN = process.env.IG_ACCESS_TOKEN;
+const NGROK_TOKEN  = process.env.NGROK_AUTHTOKEN;
+const PORT         = process.env.PORT || 3000;
+const BRANDED_DIR  = process.env.OUTPUT_DIR || './branded';
+const CAPTION      = process.env.IG_CAPTION || process.env.DEFAULT_CAPTION || '';
+const TRACKER_FILE = path.join(__dirname, 'posted.json');
+const GRAPH        = 'https://graph.facebook.com/v21.0';
 
-// If SERVER_URL is set to a real public address, skip ngrok entirely
+// On a real server SERVER_URL is set to public IP — skip ngrok entirely
 const PUBLIC_SERVER_URL = (() => {
   const url = process.env.SERVER_URL || '';
   if (url && !url.includes('localhost') && !url.includes('127.0.0.1')) return url;
   return null;
 })();
 
-// ── File server ──────────────────────────────────────────────────────────────
+// ── File server ───────────────────────────────────────────────────────────────
 
 function startFileServer() {
   const server = http.createServer((req, res) => {
@@ -39,14 +39,14 @@ function startFileServer() {
     }
 
     if (range) {
-      const [s, e]  = range.replace(/bytes=/, '').split('-');
-      const start   = parseInt(s, 10);
-      const end     = e ? parseInt(e, 10) : fileSize - 1;
+      const [s, e] = range.replace(/bytes=/, '').split('-');
+      const start  = parseInt(s, 10);
+      const end    = e ? parseInt(e, 10) : fileSize - 1;
       res.writeHead(206, {
-        'Content-Type':  'video/mp4',
-        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Content-Type':   'video/mp4',
+        'Content-Range':  `bytes ${start}-${end}/${fileSize}`,
         'Content-Length': end - start + 1,
-        'Accept-Ranges': 'bytes',
+        'Accept-Ranges':  'bytes',
       });
       fs.createReadStream(filePath, { start, end }).pipe(res);
     } else {
@@ -57,15 +57,15 @@ function startFileServer() {
   return new Promise(resolve => server.listen(PORT, () => resolve(server)));
 }
 
-// ── ngrok tunnel (local only) ─────────────────────────────────────────────────
+// ── ngrok — only loaded/used on local machine ─────────────────────────────────
 
 async function startTunnel() {
-  const ngrok    = require('@ngrok/ngrok');
+  const ngrok    = require('@ngrok/ngrok');   // lazy require — not loaded on server
   const listener = await ngrok.forward({ addr: PORT, authtoken: NGROK_TOKEN });
   return { url: listener.url(), listener };
 }
 
-// ── Instagram Graph API helpers ──────────────────────────────────────────────
+// ── Instagram Graph API ───────────────────────────────────────────────────────
 
 async function createMediaContainer(videoUrl, caption) {
   const res = await axios.post(`${GRAPH}/${IG_USER_ID}/media`, null, {
@@ -81,7 +81,7 @@ async function waitUntilReady(containerId, maxWaitMs = 5 * 60 * 1000) {
       params: { fields: 'status_code,status', access_token: ACCESS_TOKEN },
     });
     const { status_code, status } = res.data;
-    log.info(`Status: ${status_code} — ${status}`);
+    log.info(`Container: ${status_code} — ${status}`);
     if (status_code === 'FINISHED') return true;
     if (status_code === 'ERROR') throw new Error(`Container error: ${status}`);
     await new Promise(r => setTimeout(r, 10000));
@@ -96,17 +96,19 @@ async function publishContainer(containerId) {
   return res.data.id;
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 async function postOneReel() {
   if (!IG_USER_ID || !ACCESS_TOKEN) throw new Error('Missing env vars: IG_USER_ID, IG_ACCESS_TOKEN');
   if (!PUBLIC_SERVER_URL && !NGROK_TOKEN) throw new Error('Set SERVER_URL (on server) or NGROK_AUTHTOKEN (local)');
 
+  // Reload tracker fresh each call
   let current = {};
   if (fs.existsSync(TRACKER_FILE)) {
     try { current = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8')); } catch { current = {}; }
   }
 
+  // Only skip files that already have a confirmed Instagram mediaId
   const file = fs.readdirSync(BRANDED_DIR)
     .filter(f => f.endsWith('.mp4') && !current[f]?.mediaId)[0];
 
@@ -115,26 +117,25 @@ async function postOneReel() {
     return null;
   }
 
-  log.info(`Starting file server on port ${PORT}...`);;
+  log.info(`Starting file server on port ${PORT}...`);
   const server = await startFileServer();
 
   let publicUrl;
   let listener = null;
 
   if (PUBLIC_SERVER_URL) {
-    // On a real server — use public IP directly, no ngrok needed
     publicUrl = PUBLIC_SERVER_URL;
     log.info(`Using server URL: ${publicUrl}`);
   } else {
     log.info('Starting ngrok tunnel...');
     const tunnel = await startTunnel();
-    publicUrl = tunnel.url;
-    listener  = tunnel.listener;
-    log.info(`Public URL: ${publicUrl}`);
+    publicUrl    = tunnel.url;
+    listener     = tunnel.listener;
+    log.info(`Ngrok URL: ${publicUrl}`);
   }
 
   try {
-    const videoUrl    = `${publicUrl}/${encodeURIComponent(file)}`;
+    const videoUrl = `${publicUrl}/${encodeURIComponent(file)}`;
     log.info(`Posting to Instagram: ${file}`);
     log.info(`Video URL: ${videoUrl}`);
 
@@ -160,7 +161,7 @@ module.exports = { postOneReel };
 
 if (require.main === module) {
   postOneReel().catch(err => {
-    console.error('❌ Error:', err.response?.data || err.message);
+    log.error(err.response?.data?.error?.message || err.message);
     process.exit(1);
   });
 }
