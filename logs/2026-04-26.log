@@ -27,3 +27,26 @@
 [26/4/2026, 13:09:47] [INFO ] Container: FINISHED — Finished: Media has been uploaded and it is ready to be published.
 [26/4/2026, 13:09:56] [OK   ] Instagram published! Media ID: 18096378131034200
 [26/4/2026, 13:09:56] [INFO ] File server stopped.
+[26/4/2026, 13:17:01] [INFO ] ============================================
+[26/4/2026, 13:17:01] [INFO ] Insta Agent Scheduler — STARTED
+[26/4/2026, 13:17:01] [INFO ] ============================================
+[26/4/2026, 13:17:01] [INFO ]   06:00 AM IST — Download + Brand
+[26/4/2026, 13:17:01] [INFO ]   08:00 AM IST — Post 1 (Instagram + YouTube)
+[26/4/2026, 13:17:01] [INFO ]   01:00 PM IST — Post 2 (Instagram + YouTube)
+[26/4/2026, 13:17:01] [INFO ]   06:00 PM IST — Post 3 (Instagram + YouTube)
+[26/4/2026, 13:17:01] [INFO ]   07:30 PM IST — Post 4 (Instagram + YouTube)
+[26/4/2026, 13:17:01] [INFO ]   09:00 PM IST — Post 5 (Instagram + YouTube)
+[26/4/2026, 13:17:01] [INFO ] ============================================
+[26/4/2026, 13:17:01] [INFO ] Health check → http://localhost:3001/health
+[26/4/2026, 13:19:58] [INFO ] Starting file server on port 3000...
+[26/4/2026, 13:19:58] [INFO ] Starting ngrok tunnel...
+[26/4/2026, 13:19:59] [INFO ] Ngrok URL: https://annotate-rejoin-removal.ngrok-free.dev
+[26/4/2026, 13:19:59] [INFO ] Posting to Instagram: 171068796_1159833077792827_2282310103435286420_n_branded.mp4
+[26/4/2026, 13:19:59] [INFO ] Video URL: https://annotate-rejoin-removal.ngrok-free.dev/171068796_1159833077792827_2282310103435286420_n_branded.mp4
+[26/4/2026, 13:20:01] [INFO ] Container created: 18176419228400060
+[26/4/2026, 13:20:01] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:20:13] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:20:23] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:20:34] [INFO ] Container: FINISHED — Finished: Media has been uploaded and it is ready to be published.
+[26/4/2026, 13:20:43] [OK   ] Instagram published! Media ID: 17995096280940353
+[26/4/2026, 13:20:43] [INFO ] File server stopped.

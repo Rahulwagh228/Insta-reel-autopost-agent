@@ -1,7 +1,14 @@
 require('dotenv').config();
 const cron = require('node-cron');
 const http = require('http');
+const fs   = require('fs');
+const path = require('path');
 const log  = require('./logger');
+
+const BRANDED_DIR  = process.env.OUTPUT_DIR   || './branded';
+const DOWNLOAD_DIR = process.env.DOWNLOAD_DIR || './downloads';
+const TRACKER_FILE = path.join(__dirname, 'posted.json');
+const YT_ENABLED   = fs.existsSync(path.join(__dirname, 'youtube-tokens.json'));
 
 const { downloadReels }       = require('./download-reels');
 const { processBrandedReels } = require('./add-logo');
@@ -55,6 +62,35 @@ async function runPipeline() {
   });
 }
 
+// ── Cleanup: delete files after successful post ───────────────────────────────
+
+function cleanupPostedFiles() {
+  let posted = {};
+  try { posted = JSON.parse(fs.readFileSync(TRACKER_FILE, 'utf8')); } catch { return; }
+
+  for (const [brandedFile, info] of Object.entries(posted)) {
+    // Must have Instagram mediaId
+    if (!info.mediaId) continue;
+    // If YouTube is configured, wait until it's also posted before deleting
+    if (YT_ENABLED && !info.youtubeId) continue;
+
+    // Delete branded file
+    const brandedPath = path.join(BRANDED_DIR, brandedFile);
+    if (fs.existsSync(brandedPath)) {
+      fs.unlinkSync(brandedPath);
+      log.info(`Deleted branded: ${brandedFile}`);
+    }
+
+    // Derive and delete original downloaded file
+    const originalFile = brandedFile.replace(/_branded\.mp4$/, '.mp4');
+    const downloadPath = path.join(DOWNLOAD_DIR, originalFile);
+    if (fs.existsSync(downloadPath)) {
+      fs.unlinkSync(downloadPath);
+      log.info(`Deleted original: ${originalFile}`);
+    }
+  }
+}
+
 // ── Post ──────────────────────────────────────────────────────────────────────
 
 async function runPost(slot) {
@@ -81,6 +117,9 @@ async function runPost(slot) {
     } else {
       log.info('YouTube: no new reels');
     }
+
+    // Delete files that have been fully posted to all configured platforms
+    cleanupPostedFiles();
 
     log.info(`--- Post slot [${slot}] done ---`);
   });
