@@ -1,0 +1,29 @@
+[26/4/2026, 13:05:52] [INFO ] Starting file server on port 3000...
+[26/4/2026, 13:05:52] [INFO ] Starting ngrok tunnel...
+[26/4/2026, 13:05:53] [INFO ] Ngrok URL: https://annotate-rejoin-removal.ngrok-free.dev
+[26/4/2026, 13:05:53] [INFO ] Posting to Instagram: 168088562_303909571150136_5619410608401755880_n_branded.mp4
+[26/4/2026, 13:05:53] [INFO ] Video URL: https://annotate-rejoin-removal.ngrok-free.dev/168088562_303909571150136_5619410608401755880_n_branded.mp4
+[26/4/2026, 13:05:55] [INFO ] Container created: 18176417371400060
+[26/4/2026, 13:05:55] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:06:06] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:06:16] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:06:27] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:06:38] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:06:48] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:06:59] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:07:10] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:07:20] [INFO ] Container: FINISHED — Finished: Media has been uploaded and it is ready to be published.
+[26/4/2026, 13:07:41] [OK   ] Instagram published! Media ID: 18016474649677283
+[26/4/2026, 13:07:41] [INFO ] File server stopped.
+[26/4/2026, 13:09:12] [INFO ] Starting file server on port 3000...
+[26/4/2026, 13:09:12] [INFO ] Starting ngrok tunnel...
+[26/4/2026, 13:09:13] [INFO ] Ngrok URL: https://annotate-rejoin-removal.ngrok-free.dev
+[26/4/2026, 13:09:13] [INFO ] Posting to Instagram: 169477222_294617658741421_3039563410959545280_n_branded.mp4
+[26/4/2026, 13:09:13] [INFO ] Video URL: https://annotate-rejoin-removal.ngrok-free.dev/169477222_294617658741421_3039563410959545280_n_branded.mp4
+[26/4/2026, 13:09:15] [INFO ] Container created: 18176418118400060
+[26/4/2026, 13:09:16] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:09:26] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:09:37] [INFO ] Container: IN_PROGRESS — In Progress: Media is still being processed.
+[26/4/2026, 13:09:47] [INFO ] Container: FINISHED — Finished: Media has been uploaded and it is ready to be published.
+[26/4/2026, 13:09:56] [OK   ] Instagram published! Media ID: 18096378131034200
+[26/4/2026, 13:09:56] [INFO ] File server stopped.
